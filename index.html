@@ -705,6 +705,24 @@
       body { cursor: auto; }
       .cur, .cur-ring { display: none; }
     }
+
+    /* ─── Hero mobile polish ─── */
+    @media (max-width: 768px) {
+      /* Change 1: both names italic */
+      .hero-name .first { font-style: italic; }
+
+      /* Change 2: reduce top whitespace */
+      .hero { min-height: 68vh; }
+      .hero-badge { margin-bottom: 1.2rem; }
+      .hero-rule { margin: 1.5rem 0 1.5rem; }
+
+      /* Change 3: hide decorative scroll line */
+      .scroll-bar { display: none; }
+
+      /* Change 4: stack location on two lines, hide dot */
+      .hero-role-sep { display: none; }
+      .hero-role-world { display: block; }
+    }
   </style>
 </head>
 <body>
@@ -742,7 +760,7 @@
     <div class="hero-rule"></div>
 
     <div class="hero-foot">
-      <p class="hero-role">Based in <b>Tel Aviv</b> &nbsp;·&nbsp; Available Worldwide</p>
+      <p class="hero-role">Based in <b>Tel Aviv</b><span class="hero-role-sep"> &nbsp;·&nbsp; </span><span class="hero-role-world">Available Worldwide</span></p>
       <div class="hero-scroll">
         <div class="scroll-bar"></div>
         Scroll to explore
