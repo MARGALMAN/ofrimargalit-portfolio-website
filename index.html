@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ofri Margalit - Cinematographer & AI Filmmaker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #09080700;
+      --bg-base:   #09080700;
+      --surface:   #14110e;
+      --surface2:  #1c1814;
+      --text:      #ede8df;
+      --text-dim:  rgba(237,232,223,0.68);
+      --text-muted:rgba(237,232,223,0.42);
+      --accent:    #c9a96a;
+      --accent-lo: rgba(201,169,106,0.12);
+      --border:    rgba(201,169,106,0.13);
+      --border2:   rgba(201,169,106,0.07);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #090807;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ─── Grain ─── */
+    .grain {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 200;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 220px;
+      opacity: 0.042;
+      animation: grainAnim 0.35s steps(1) infinite;
+    }
+    @keyframes grainAnim {
+      0%   { background-position: 0 0; }
+      10%  { background-position: -4% -9%; }
+      20%  { background-position: -14% 4%; }
+      30%  { background-position: 6% -22%; }
+      40%  { background-position: -4% 23%; }
+      50%  { background-position: -13% 9%; }
+      60%  { background-position: 14% -1%; }
+      70%  { background-position: -1% 14%; }
+      80%  { background-position: 3% 33%; }
+      90%  { background-position: -9% 9%; }
+    }
+
+    /* ─── Letterbox ─── */
+    .lb { position: fixed; left: 0; right: 0; height: 12vh; background: #000; z-index: 190; transition: height 1.6s cubic-bezier(0.76,0,0.24,1); }
+    .lb-top { top: 0; }
+    .lb-btm { bottom: 0; }
+    .lb.open { height: 0; }
+
+    /* ─── Cursor ─── */
+    .cur { position: fixed; width: 7px; height: 7px; background: var(--accent); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .15s, height .15s; }
+    .cur-ring { position: fixed; width: 30px; height: 30px; border: 1px solid rgba(201,169,106,0.35); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: width .2s, height .2s, border-color .2s; }
+    body.hov .cur { width: 10px; height: 10px; }
+    body.hov .cur-ring { width: 46px; height: 46px; border-color: var(--accent); }
+
+    /* ─── Nav ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 2rem 3.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      background: linear-gradient(180deg, rgba(9,8,7,0.92) 0%, rgba(9,8,7,0.4) 60%, transparent 100%);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400; font-size: 1rem; letter-spacing: .1em;
+      color: var(--text); text-decoration: none;
+      opacity: 0; transform: translateY(-6px);
+      animation: fadeUp .7s ease 1.8s forwards;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: .64rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--text-muted); text-decoration: none; position: relative;
+      opacity: 0; transform: translateY(-6px);
+      transition: color .3s;
+    }
+    .nav-links li:nth-child(1) a { animation: fadeUp .7s ease 1.9s forwards; }
+    .nav-links li:nth-child(2) a { animation: fadeUp .7s ease 2.0s forwards; }
+    .nav-links li:nth-child(3) a { animation: fadeUp .7s ease 2.1s forwards; }
+    .nav-links a::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 0; height: 1px; background: var(--accent); transition: width .3s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ─── Hero ─── */
+    .hero {
+      min-height: 82vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 0 3.5rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 90% 70% at 15% 60%, rgba(201,169,106,.055) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 85% 15%, rgba(201,169,106,.025) 0%, transparent 50%),
+        radial-gradient(ellipse 120% 60% at 50% 110%, rgba(0,0,0,.7) 0%, transparent 55%);
+    }
+    .hero-badge {
+      font-size: .62rem; letter-spacing: .26em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 2rem;
+      display: flex; align-items: center; gap: 1rem;
+      opacity: 0; transform: translateY(16px);
+      animation: fadeUp .9s ease 1.0s forwards;
+    }
+    .hero-badge::before { content: ''; width: 36px; height: 1px; background: var(--accent); opacity: .7; }
+
+    .hero-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(5.5rem, 12.5vw, 12rem);
+      line-height: .88;
+      letter-spacing: -.035em;
+      opacity: 0; transform: translateY(40px);
+      animation: fadeUp 1.2s cubic-bezier(.22,1,.36,1) .6s forwards;
+    }
+    .hero-name .first { display: block; color: var(--text); }
+    .hero-name .last {
+      display: block;
+      font-style: italic;
+      color: var(--text);
+    }
+
+    .hero-rule {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, var(--border) 0%, transparent 80%);
+      margin: 2.5rem 0 2rem;
+      opacity: 0; animation: fadeIn .8s ease 1.6s forwards;
+    }
+    .hero-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      opacity: 0; transform: translateY(14px);
+      animation: fadeUp .8s ease 1.7s forwards;
+    }
+    .hero-role { font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: var(--text-dim); }
+    .hero-role b { color: var(--accent); font-weight: 400; }
+    .hero-scroll { display: flex; align-items: center; gap: .8rem; font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: var(--text-muted); }
+    .scroll-bar { width: 44px; height: 1px; background: var(--text-muted); position: relative; overflow: hidden; }
+    .scroll-bar::after {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: var(--accent); animation: barSlide 2.2s ease 2.8s infinite;
+    }
+    @keyframes barSlide { 0%{left:-100%} 50%{left:100%} 100%{left:100%} }
+
+    .hero-counter {
+      position: absolute; right: 3.5rem; top: 50%; transform: translateY(-50%);
+      writing-mode: vertical-rl; font-size: .6rem; letter-spacing: .14em;
+      color: var(--text-muted);
+      opacity: 0; animation: fadeIn 1s ease 2.2s forwards;
+      z-index: 2;
+    }
+
+    /* ─── Hero Photo ─── */
+    .hero-photo {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 52%; pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .hero-photo img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center top;
+      filter: saturate(.55) brightness(.6);
+      mix-blend-mode: luminosity;
+    }
+    .hero-photo::before {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      /* Wide, eased left-to-right fade — no hard line */
+      background: linear-gradient(90deg,
+        #090807 0%,
+        #090807 8%,
+        rgba(9,8,7,.99) 18%,
+        rgba(9,8,7,.95) 30%,
+        rgba(9,8,7,.86) 42%,
+        rgba(9,8,7,.68) 54%,
+        rgba(9,8,7,.44) 66%,
+        rgba(9,8,7,.22) 78%,
+        rgba(9,8,7,.08) 88%,
+        transparent 100%
+      );
+    }
+    .hero-photo::after {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      /* Strong top vignette so nav text stays legible */
+      background: linear-gradient(180deg,
+        rgba(9,8,7,.88) 0%,
+        rgba(9,8,7,.55) 12%,
+        transparent 32%,
+        transparent 55%,
+        rgba(9,8,7,.92) 100%
+      );
+    }
+    @media (max-width: 900px) { .hero-photo { width: 70%; opacity: .35; } }
+
+
+    /* ─── Credentials Ticker ─── */
+
+    /* ─── Section base ─── */
+    section { padding: 8rem 3.5rem; position: relative; }
+    .s-label {
+      font-size: .62rem; letter-spacing: .26em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 3rem;
+      display: flex; align-items: center; gap: 1.25rem;
+    }
+    .s-label::before { content: ''; width: 28px; height: 1px; background: var(--accent); opacity: .7; }
+
+    /* ─── Work ─── */
+    .work-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3.5rem; gap: 2rem; }
+    .work-h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300; font-size: clamp(2.8rem, 5.5vw, 5rem);
+      line-height: .95; letter-spacing: -.025em;
+    }
+    .work-h2 em { font-style: italic; color: var(--accent); }
+    .view-all {
+      font-size: .62rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--text-muted); text-decoration: none;
+      display: flex; align-items: center; gap: .7rem;
+      transition: color .3s; white-space: nowrap; padding-bottom: .25rem;
+    }
+    .view-all span { transition: transform .3s; }
+    .view-all:hover { color: var(--accent); }
+    .view-all:hover span { transform: translateX(4px); }
+
+    /* Grid */
+    .proj-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2px; border: 1px solid var(--border2); }
+    .proj-card { position: relative; overflow: hidden; background: var(--surface); border: 1px solid var(--border2); }
+    .proj-card.hero { grid-column: 1; grid-row: 1 / 4; }
+    .proj-thumb { position: relative; overflow: hidden; }
+    .proj-card.hero .proj-thumb { aspect-ratio: unset; height: 100%; min-height: 480px; }
+    .proj-card:not(.hero) .proj-thumb { aspect-ratio: 4/3; }
+    .proj-img {
+      width: 100%; height: 100%; object-fit: cover; display: block; position: absolute; inset: 0;
+      filter: saturate(.6) brightness(.85);
+      transition: transform .9s cubic-bezier(.22,1,.36,1), filter .6s;
+    }
+    .proj-card:hover .proj-img { transform: scale(1.06); filter: saturate(.85) brightness(.95); }
+    .proj-thumb { transition: transform .9s cubic-bezier(.22,1,.36,1); }
+    .proj-card:hover .proj-thumb { transform: scale(1.04); }
+    .proj-over {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(9,8,7,.92) 100%);
+      pointer-events: none;
+    }
+    .proj-thumb::before {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      background: radial-gradient(ellipse 60% 55% at 35% 40%, rgba(201,169,106,.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .proj-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.4rem 1.6rem; z-index: 2; }
+    .proj-tags { display: flex; gap: .4rem; margin-bottom: .5rem; flex-wrap: wrap; }
+    .proj-tag {
+      font-size: .55rem; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--text-dim); border: 1px solid rgba(237,232,223,.25);
+      padding: .18rem .45rem;
+    }
+    .proj-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400; font-size: 1.35rem; letter-spacing: -.01em; color: var(--text);
+    }
+    .proj-card.wide .proj-title { font-size: 1.75rem; }
+    .proj-yr { font-size: .58rem; letter-spacing: .14em; color: var(--text-muted); margin-top: .3rem; }
+
+    /* ─── About ─── */
+    .about-sec {
+      background: var(--surface);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4.5rem; align-items: start; }
+    .about-photo-wrap { position: relative; }
+    .about-photo { width: 100%; display: block; filter: saturate(.6) brightness(.72); }
+    .about-photo-wrap::before {
+      content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background:
+        linear-gradient(90deg, var(--surface) 0%, transparent 30%),
+        linear-gradient(180deg, transparent 55%, var(--surface) 100%),
+        linear-gradient(0deg, transparent 85%, var(--surface) 100%);
+    }
+
+    .about-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-weight: 300;
+      font-size: clamp(1.9rem, 3.2vw, 2.8rem); line-height: 1.3; letter-spacing: -.01em;
+      color: var(--text);
+    }
+    .about-quote em { font-style: normal; color: var(--accent); }
+    .about-body { padding-top: .5rem; }
+    .about-p { font-size: .76rem; line-height: 1.95; color: var(--text-dim); margin-bottom: 1.5rem; }
+    .skills { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; list-style: none; margin-top: 2.5rem; }
+    .skills li {
+      font-size: .62rem; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--text-dim); display: flex; align-items: center; gap: .7rem;
+    }
+    .skills li::before { content: ''; width: 18px; height: 1px; background: var(--accent); opacity: .5; flex-shrink: 0; }
+
+    /* ─── Contact ─── */
+    .contact-sec { text-align: center; padding: 11rem 3.5rem; }
+    .contact-eyebrow { font-size: .62rem; letter-spacing: .26em; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 2rem; }
+    .contact-h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300; font-size: clamp(3.5rem, 8vw, 7.5rem);
+      line-height: .93; letter-spacing: -.035em; margin-bottom: 3.5rem;
+    }
+    .contact-h2 em { font-style: italic; color: var(--accent); }
+    .contact-email {
+      display: inline-block; font-size: .74rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--text-dim); text-decoration: none;
+      border-bottom: 1px solid var(--border); padding-bottom: .45rem;
+      transition: color .3s, border-color .3s;
+    }
+    .contact-email:hover { color: var(--accent); border-color: var(--accent); }
+    .socials { display: flex; justify-content: center; gap: 2.5rem; margin-top: 4rem; flex-wrap: wrap; align-items: center; }
+    .social-a { color: var(--text-muted); text-decoration: none; transition: color .3s, opacity .3s; display: flex; align-items: center; gap: .55rem; }
+    .social-a svg { display: block; flex-shrink: 0; }
+    .social-a span { font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; }
+    .social-a:hover { color: var(--text); }
+
+    /* ─── Footer ─── */
+    footer {
+      padding: 1.75rem 3.5rem;
+      border-top: 1px solid var(--border2);
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    }
+    footer p { font-size: .58rem; letter-spacing: .12em; color: var(--text-muted); }
+    .footer-claude {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .58rem; letter-spacing: .1em; color: var(--text-muted);
+    }
+    .footer-claude a { color: inherit; text-decoration: none; transition: color .3s; display: flex; align-items: center; gap: .45rem; }
+    .footer-claude a:hover { color: var(--text); }
+
+    /* ─── Animations ─── */
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .9s ease, transform .9s cubic-bezier(.22,1,.36,1); }
+    .reveal.vis { opacity: 1; transform: translateY(0); }
+
+    /* ════════════════════════════════════════════════
+       SHARED: Video embed (used in project detail sections)
+       ════════════════════════════════════════════════ */
+    .video-embed {
+      position: relative; aspect-ratio: 16/9; width: 100%;
+      background: var(--surface); overflow: hidden;
+    }
+    .video-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+    /* ════════════════════════════════════════════════
+       SHARED: Project Detail Sections (.pd-*)
+       Reuse this structure for every project (Al-Sam, etc.)
+       ════════════════════════════════════════════════ */
+    .pd { background: #090807; }
+
+    /* — Back nav — */
+    .pd-nav {
+      padding: .9rem 3.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-top: 2px solid var(--border);
+      border-bottom: 1px solid var(--border2);
+    }
+    .pd-back-link {
+      font-size: .62rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--text-muted); text-decoration: none;
+      display: inline-flex; align-items: center; gap: .6rem;
+      transition: color .3s;
+    }
+    .pd-back-link:hover { color: var(--accent); }
+    .pd-back-arrow { display: inline-block; transition: transform .3s; }
+    .pd-back-link:hover .pd-back-arrow { transform: translateX(-4px); }
+    .pd-breadcrumb { font-size: .58rem; letter-spacing: .15em; text-transform: uppercase; color: var(--text-muted); }
+
+    /* — Hero: poster banner + logline — */
+    .pd-banner { position: relative; overflow: hidden; border-bottom: 1px solid var(--border2); }
+    .pd-banner img {
+      width: 100%; display: block;
+      filter: saturate(.82) brightness(.88);
+      transition: filter .5s;
+    }
+    .pd-banner:hover img { filter: saturate(.9) brightness(.92); }
+    .pd-banner-over {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(9,8,7,0) 35%, rgba(9,8,7,.65) 100%);
+      pointer-events: none;
+    }
+
+    .pd-hero-content {
+      padding: 2rem 3.5rem 2.5rem;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;
+      border-bottom: 1px solid var(--border2);
+    }
+    .pd-project-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(3.5rem, 7vw, 7rem);
+      line-height: .88; letter-spacing: -.035em; color: var(--text);
+      align-self: start;
+    }
+    .pd-hero-meta { display: flex; flex-direction: column; justify-content: flex-end; gap: 2rem; }
+    .pd-logline {
+      font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300;
+      font-size: clamp(1.15rem, 2vw, 1.55rem); line-height: 1.5; color: var(--text-dim);
+    }
+    .pd-credits { font-size: .64rem; letter-spacing: .2em; text-transform: uppercase; color: var(--text-muted); }
+
+    /* — Generic section container inside pd — */
+    .pd-section { padding: 5rem 3.5rem; border-top: 1px solid var(--border2); }
+    .pd-section .s-label { margin-bottom: 3rem; }
+
+    /* — Watch section — */
+    .pd-video-primary { max-width: 960px; }
+
+    /* — Process section — */
+    .pd-process-block {
+      display: grid; grid-template-columns: 260px 1fr; gap: 3.5rem;
+      padding: 3.5rem 0;
+      border-bottom: 1px solid var(--border2);
+    }
+    .pd-process-block:first-child { border-top: 1px solid var(--border2); margin-top: .5rem; }
+
+    .pd-proc-meta { padding-top: .2rem; }
+    .pd-proc-num {
+      display: block; font-size: .56rem; letter-spacing: .26em; text-transform: uppercase;
+      color: var(--accent); opacity: .8; margin-bottom: 1.25rem;
+    }
+    .pd-proc-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(1.6rem, 2.8vw, 2.5rem); line-height: 1.05;
+      letter-spacing: -.02em; color: var(--text);
+    }
+    .pd-proc-body > p {
+      font-size: .9rem; line-height: 2; color: var(--text-dim); margin-bottom: 1.35rem;
+    }
+    .pd-proc-body > p:last-child { margin-bottom: 0; }
+
+    /* Pipeline visualization */
+    .pd-pipeline {
+      display: flex; flex-wrap: wrap; align-items: center; gap: .35rem;
+      margin-top: 2.5rem; padding: 1.4rem 1.75rem;
+      background: var(--surface); border-left: 2px solid var(--accent);
+    }
+    .pd-pipe-tool {
+      font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--text-dim); white-space: nowrap; padding: .2rem 0;
+    }
+    .pd-pipe-sep { color: var(--text-muted); font-size: .75rem; opacity: .65; flex-shrink: 0; padding: 0 .1rem; }
+    .pd-pipe-note { font-size: .58rem; letter-spacing: .08em; color: var(--text-muted); margin-top: .6rem; width: 100%; }
+
+    /* — Recognition section — */
+    .pd-rec-block { padding: 4rem 0; border-bottom: 1px solid var(--border2); }
+    .pd-rec-block:first-child { border-top: 1px solid var(--border2); margin-top: .5rem; }
+    .pd-rec-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 400;
+      font-size: clamp(1.5rem, 2.8vw, 2.4rem); letter-spacing: -.015em; color: var(--text);
+      margin-bottom: .6rem;
+    }
+    .pd-rec-sub { font-size: .74rem; line-height: 1.85; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 680px; }
+
+    .pd-rec-body { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+    .pd-rec-body.wide { grid-template-columns: 1fr; max-width: 960px; }
+    .pd-rec-body.thirds { grid-template-columns: 1fr 1fr; gap: 2rem; }
+
+    .pd-caption {
+      font-size: .6rem; letter-spacing: .04em; line-height: 1.7; color: var(--text-muted); margin-top: .75rem;
+    }
+    .pd-caption a { color: var(--accent); text-decoration: none; transition: opacity .3s; }
+    .pd-caption a:hover { opacity: .7; }
+
+    /* Photo grid */
+    .pd-photo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+    .pd-photo-row.full { grid-template-columns: 1fr 1fr; }
+
+    .pd-figure { margin: 0; }
+    .pd-figure img {
+      width: 100%; display: block;
+      border: 1px solid var(--border2);
+      filter: saturate(.7) brightness(.88);
+      transition: filter .5s;
+    }
+    .pd-figure:hover img { filter: saturate(.88) brightness(.97); }
+    .pd-figcaption { font-size: .59rem; letter-spacing: .05em; line-height: 1.65; color: var(--text-muted); margin-top: .55rem; }
+
+    .pd-rec-quotes p { font-size: .77rem; line-height: 1.9; color: var(--text-dim); margin-bottom: 1.25rem; }
+    .pd-rec-quotes p:last-child { margin-bottom: 0; }
+    .pd-rec-quotes strong { color: var(--text); font-weight: 400; }
+
+    .pd-ext-link {
+      display: inline-flex; align-items: center; gap: .6rem;
+      font-size: .6rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--text-muted); text-decoration: none;
+      border: 1px solid var(--border); padding: .6rem 1.2rem; margin-top: 1.25rem;
+      transition: color .3s, border-color .3s;
+    }
+    .pd-ext-link:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* Stacked recognition layout */
+    .pd-rec-stacked { display: flex; flex-direction: column; gap: 1.5rem; max-width: 960px; }
+
+    /* Festival logos row */
+    .pd-festival-row {
+      display: flex; gap: 2rem; align-items: stretch; justify-content: center;
+      flex-wrap: wrap; padding: 2.5rem 0 1rem;
+    }
+    .pd-festival-item {
+      background: var(--surface); border: 1px solid var(--border2);
+      padding: 2rem 2.5rem;
+      display: flex; align-items: center; justify-content: center;
+      flex: 1; min-width: 180px; max-width: 240px;
+      transition: border-color .4s;
+    }
+    .pd-festival-item:hover { border-color: var(--border); }
+    .pd-festival-item img { height: 120px; width: auto; display: block; }
+    .pd-festival-note { font-size: .59rem; letter-spacing: .08em; line-height: 1.7; color: var(--text-muted); text-align: center; margin-top: .5rem; }
+
+    @media (max-width: 900px) {
+      .pd-festival-item img { height: 95px; }
+      .pd-festival-item { min-width: 140px; padding: 1.5rem 1.75rem; }
+    }
+    @media (max-width: 600px) {
+      .pd-festival-item img { height: 80px; }
+      .pd-festival-row { gap: 1.25rem; }
+    }
+
+    /* ─── Cinematography video pair ─── */
+    .cine-subsection { padding-top: 3rem; }
+    .cine-sub-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(1.5rem, 2.6vw, 2.2rem); letter-spacing: -.015em;
+      color: var(--text); margin-bottom: .5rem;
+    }
+    .cine-sub-note { font-size: .74rem; line-height: 1.85; color: var(--text-dim); max-width: 640px; margin-bottom: 3rem; }
+    .cine-pair {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start;
+    }
+    .cine-item {}
+    .cine-embed {
+      position: relative; aspect-ratio: 4/3; width: 100%;
+      background: var(--surface); overflow: hidden;
+      border: 1px solid var(--border2);
+    }
+    .cine-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .cine-desc {
+      margin-top: 1.25rem; font-size: .78rem; line-height: 1.95;
+      color: var(--text-dim);
+    }
+    .cine-desc p { margin-bottom: .75rem; }
+    .cine-desc p:last-child { margin-bottom: 0; }
+    .cine-tech { font-size: .65rem; letter-spacing: .06em; color: var(--text-muted); margin-top: .5rem; }
+    .cine-stack { display: flex; flex-direction: column; gap: 4rem; }
+    /* Frames carousel */
+    .frames-wrap { position: relative; margin-top: 2.5rem; }
+    .frames-track {
+      display: flex; gap: 6px; overflow-x: auto; scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      padding: 12px 0;
+    }
+    .frames-track::-webkit-scrollbar { display: none; }
+    .frames-track img {
+      flex-shrink: 0; display: block; height: 300px;
+      object-fit: contain; background: var(--surface);
+      border: 1px solid var(--border2); cursor: zoom-in;
+      filter: saturate(.82) brightness(.9);
+      transition: filter .45s cubic-bezier(.22,1,.36,1), transform .35s cubic-bezier(.22,1,.36,1);
+    }
+    .frames-track img:hover { filter: saturate(1) brightness(1); transform: scale(1.03); z-index: 2; }
+    .frames-track img:active { transform: scale(1.05); z-index: 2; }
+    /* Photography section */
+    .photo-sec { border-top: 1px solid var(--border2); }
+    .photo-tagline {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(1.1rem, 1.8vw, 1.45rem); color: var(--text-dim);
+      letter-spacing: .01em; margin-top: 1.75rem; margin-bottom: 3.5rem;
+    }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .photo-grid-item {
+      aspect-ratio: 4/5; position: relative;
+      overflow: hidden; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      background: var(--bg);
+    }
+    .photo-grid-item img {
+      width: 100%; height: 100%; display: block;
+      object-fit: contain; object-position: center;
+      filter: saturate(.78) brightness(.86);
+      transition: filter .4s cubic-bezier(.22,1,.36,1), transform .4s cubic-bezier(.22,1,.36,1);
+    }
+    .photo-grid-item:hover img { filter: saturate(1) brightness(1); transform: scale(1.03); }
+    @media (max-width: 960px) { .photo-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) {
+      .photo-grid { grid-template-columns: 1fr; gap: 1px; }
+      .photo-grid-item { aspect-ratio: auto; }
+      .photo-grid-item img { height: auto; }
+      .photo-sec { padding: 5rem 1.5rem; }
+    }
+
+    /* Lightbox */
+    .lb-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(9,8,7,.95); display: flex;
+      align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s cubic-bezier(.22,1,.36,1);
+    }
+    .lb-overlay.lb-open { opacity: 1; pointer-events: all; }
+    .lb-overlay img {
+      max-width: 92vw; max-height: 88vh;
+      object-fit: contain; display: block;
+      transform: scale(.94);
+      transition: transform .35s cubic-bezier(.22,1,.36,1);
+    }
+    .lb-overlay.lb-open img { transform: scale(1); }
+    .lb-close {
+      position: absolute; top: 1.5rem; right: 1.75rem;
+      background: none; border: none; color: var(--text-muted);
+      font-size: 1.4rem; cursor: pointer; line-height: 1;
+      transition: color .2s;
+    }
+    .lb-close:hover { color: var(--accent); }
+    .lb-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(9,8,7,.7); border: 1px solid var(--border);
+      color: var(--text-dim); width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: .85rem;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .lb-nav:hover { background: rgba(201,169,106,.12); border-color: var(--accent); color: var(--accent); }
+    .lb-nav-prev { left: 1.5rem; }
+    .lb-nav-next { right: 1.5rem; }
+    .lb-counter {
+      position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      font-size: .56rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--text-muted); font-family: 'DM Mono', monospace;
+    }
+    .frames-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(9,8,7,.82); border: 1px solid var(--border);
+      color: var(--text-dim); width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 2; font-size: .78rem;
+      transition: opacity .25s, background .25s, color .25s, border-color .25s;
+    }
+    .frames-arrow:hover { background: rgba(201,169,106,.12); border-color: var(--accent); color: var(--accent); }
+    .frames-arrow.frames-hidden { opacity: 0; pointer-events: none; }
+    .frames-arrow-prev { left: .5rem; }
+    .frames-arrow-next { right: .5rem; }
+    .cine-embed-169 {
+      position: relative; aspect-ratio: 16/9; width: 100%;
+      background: var(--surface); overflow: hidden;
+      border: 1px solid var(--border2);
+    }
+    .cine-embed-169 iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    @media (max-width: 820px) {
+      .cine-pair { grid-template-columns: 1fr; gap: 3rem; }
+    }
+
+    /* Responsive — project detail */
+    @media (max-width: 900px) {
+      .pd-nav { padding: 1.1rem 1.75rem; }
+      .pd-hero-content { grid-template-columns: 1fr; gap: 1.5rem; padding: 1.5rem 1.75rem 2rem; }
+      .pd-section { padding: 3.5rem 1.75rem; }
+      .pd-process-block { grid-template-columns: 1fr; gap: 1rem; padding: 2.5rem 0; }
+      .pd-rec-block { padding: 3rem 0; }
+      .pd-rec-body { grid-template-columns: 1fr; }
+      .pd-rec-body.thirds { grid-template-columns: 1fr; }
+      .pd-siaff-badge { padding: 2rem 2rem; }
+    }
+    @media (max-width: 600px) {
+      .pd-photo-row { grid-template-columns: 1fr; }
+      .pd-photo-row.full { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 900px) {
+      nav { padding: 1.5rem 1.75rem; }
+      .hero { padding: 0 1.75rem 3.5rem; }
+      section { padding: 5rem 1.75rem; }
+      .proj-grid { grid-template-columns: 1fr; }
+      .proj-card.hero { grid-column: 1; grid-row: auto; }
+      .proj-card.hero .proj-thumb { height: auto; min-height: unset; aspect-ratio: 4/3; }
+      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+      .hero-counter { display: none; }
+    }
+    @media (pointer: coarse) {
+      body { cursor: auto; }
+      .cur, .cur-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="grain"></div>
+  <div class="lb lb-top" id="lbTop"></div>
+  <div class="lb lb-btm" id="lbBtm"></div>
+  <div class="cur" id="cur"></div>
+  <div class="cur-ring" id="curRing"></div>
+
+  <!-- Nav -->
+  <nav>
+    <a href="#" class="nav-logo">O · M</a>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-photo">
+      <img src="assets/trying.jpg" alt="Ofri Margalit" loading="eager">
+    </div>
+
+    <div class="hero-badge">Filmmaker &amp; AI Creative</div>
+
+    <h1 class="hero-name">
+      <span class="first">Ofri</span>
+      <span class="last">Margalit</span>
+    </h1>
+
+    <div class="hero-rule"></div>
+
+    <div class="hero-foot">
+      <p class="hero-role">Based in <b>Tel Aviv</b> &nbsp;·&nbsp; Available Worldwide</p>
+      <div class="hero-scroll">
+        <div class="scroll-bar"></div>
+        Scroll to explore
+      </div>
+    </div>
+
+    <div class="hero-counter">2026 - Portfolio</div>
+  </section>
+
+  <!-- Credentials Ticker -->
+
+  <!-- Work -->
+  <section id="work">
+    <div class="s-label">Selected Work</div>
+    <div class="work-head">
+      <h2 class="work-h2 reveal">From <span style="color:var(--accent);font-style:normal;">film sets</span><br>to generative pipelines.</h2>
+      <a href="#" class="view-all">View all projects <span>→</span></a>
+    </div>
+
+    <div class="proj-grid">
+
+      <!-- Card 1: PerfectMan — hero, spans 3 rows on the left -->
+      <a href="#perfectman" class="proj-card hero reveal" style="display:block;text-decoration:none;">
+        <div class="proj-thumb" style="background:#0a0907;">
+          <img class="proj-img" src="assets/PerfectMan_Poster_1.png" alt="PerfectMan" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;filter:saturate(.7) brightness(.78);transition:filter .6s,transform .9s cubic-bezier(.22,1,.36,1);">
+          <div class="proj-over"></div>
+          <div class="proj-info">
+            <div class="proj-tags"><span class="proj-tag">AI Short Film</span><span class="proj-tag">2025</span><span class="proj-tag">Dor Awards — 1st Place</span></div>
+            <div class="proj-title">PerfectMan</div>
+            <div class="proj-yr" style="display:flex;align-items:center;gap:.5rem;color:var(--text-muted);opacity:.7;font-size:.56rem;letter-spacing:.14em;margin-top:.4rem;">View Project <span>↓</span></div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 2: Al Sam Nonprofit -->
+      <a href="#al-sam" class="proj-card reveal" style="display:block;text-decoration:none;transition-delay:.06s">
+        <div class="proj-thumb" style="background:#0d0c0a;">
+          <img class="proj-img" src="assets/alsam.png" alt="Al Sam Nonprofit" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.7) brightness(.78);transition:filter .6s,transform .9s cubic-bezier(.22,1,.36,1);">
+          <div class="proj-over"></div>
+          <div class="proj-info">
+            <div class="proj-tags"><span class="proj-tag">AI Campaign</span><span class="proj-tag">2026</span><span class="proj-tag">Nonprofit</span></div>
+            <div class="proj-title">Al Sam Nonprofit</div>
+            <div class="proj-yr" style="display:flex;align-items:center;gap:.5rem;color:var(--text-muted);opacity:.7;font-size:.56rem;letter-spacing:.14em;margin-top:.4rem;">View Project <span>↓</span></div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 3: Cinematography -->
+      <a href="#cinematography" class="proj-card reveal" style="display:block;text-decoration:none;transition-delay:.1s">
+        <div class="proj-thumb" style="background:#060810;">
+          <img class="proj-img" src="assets/Hokkaido.png" alt="Cinematography" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.7) brightness(.78);transition:filter .6s,transform .9s cubic-bezier(.22,1,.36,1);">
+          <div class="proj-over"></div>
+          <div class="proj-info">
+            <div class="proj-tags"><span class="proj-tag">Cinematography</span><span class="proj-tag">Films</span><span class="proj-tag">Music Videos</span></div>
+            <div class="proj-title">Cinematography</div>
+            <div class="proj-yr" style="display:flex;align-items:center;gap:.5rem;color:var(--text-muted);opacity:.7;font-size:.56rem;letter-spacing:.14em;margin-top:.4rem;">View Work <span>↓</span></div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 4: Photography -->
+      <a href="#photography" class="proj-card reveal" style="display:block;text-decoration:none;transition-delay:.14s">
+        <div class="proj-thumb" style="background:#0c0a08;">
+          <img class="proj-img" src="assets/sakurajima.jpg" alt="Photography" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.7) brightness(.78);transition:filter .6s,transform .9s cubic-bezier(.22,1,.36,1);">
+          <div class="proj-over"></div>
+          <div class="proj-info">
+            <div class="proj-tags"><span class="proj-tag">Photography</span><span class="proj-tag">35mm Film</span><span class="proj-tag">Analog</span></div>
+            <div class="proj-title">Photography</div>
+            <div class="proj-yr" style="display:flex;align-items:center;gap:.5rem;color:var(--text-muted);opacity:.7;font-size:.56rem;letter-spacing:.14em;margin-top:.4rem;">View Work <span>↓</span></div>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PROJECT DETAIL: PerfectMan
+       Template: copy this entire block for future projects (Al-Sam, etc.)
+       Just swap the id, content, and asset paths.
+       ═══════════════════════════════════════════════════════ -->
+  <section class="pd" id="perfectman">
+
+    <!-- AI Projects category header -->
+    <div class="pd-nav">
+      <a href="#work" class="pd-back-link"><span class="pd-back-arrow">←</span> Selected Work</a>
+      <span class="pd-breadcrumb">AI Projects</span>
+    </div>
+    <div style="padding: 2rem 3.5rem 2rem; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border2);">
+      <h2 class="pd-project-title" style="margin: 0; line-height: 0.88;">AI Projects</h2>
+      <div class="pd-tags" style="flex-shrink: 0; align-self: flex-end;">
+        <span class="proj-tag">Generative Video</span>
+        <span class="proj-tag">AI Filmmaking</span>
+        <span class="proj-tag">Kling · Veo 3</span>
+      </div>
+    </div>
+
+    <!-- Hero: Banner + Title + Logline -->
+    <div class="pd-banner reveal">
+      <img src="assets/PerfectMan_Poster.png" alt="PerfectMan - AI Short Film poster" loading="eager">
+      <div class="pd-banner-over"></div>
+    </div>
+
+    <div class="pd-hero-content">
+      <h2 class="pd-project-title reveal">PerfectMan</h2>
+      <div class="pd-hero-meta">
+        <div class="pd-tags reveal" style="transition-delay:.06s">
+          <span class="proj-tag">AI Film</span>
+          <span class="proj-tag">Director</span>
+          <span class="proj-tag">Editor</span>
+        </div>
+        <p class="pd-logline reveal" style="transition-delay:.1s">
+          PerfectMan has all the powers, but fears a simple door he can't defeat. His real challenge isn't a villain, but what lies behind his mask and the truth on the other side of that door.
+        </p>
+        <p class="pd-credits reveal" style="transition-delay:.14s">A film by Ofri Margalit &amp; Omer Eventov</p>
+      </div>
+    </div>
+
+    <!-- ─── Watch the Film ─── -->
+    <div class="pd-section">
+      <div class="s-label reveal">Watch the Film</div>
+      <div class="pd-video-primary reveal" style="transition-delay:.06s">
+        <div class="video-embed">
+          <iframe
+            src="https://www.youtube.com/embed/M3i05lGMSm8"
+            title="PerfectMan — AI Short Film by Ofri Margalit & Omer Eventov"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── The Process ─── -->
+    <div class="pd-section">
+      <div class="s-label reveal">The Process</div>
+
+      <div class="pd-process-block reveal">
+        <div class="pd-proc-meta">
+          <span class="pd-proc-num">01</span>
+          <h3 class="pd-proc-title">The Problem</h3>
+        </div>
+        <div class="pd-proc-body">
+          <p>We wanted to tell a story about a <em>hikikomori</em> - a Japanese term for people who withdraw completely from society, isolating themselves inside their homes for months or even years. We first encountered the phenomenon through <em>Shaking Tokyo</em>, a short film by Bong Joon-ho that stayed with us for years.</p>
+          <p>The creative challenge was clear: how do you build a Japanese-set narrative that feels culturally grounded, cinematically cohesive, and emotionally real?</p>
+          <p>The technical challenge was bigger. Generative video models were still maturing fast, and the landscape was shifting week by week. Character consistency across shots was unreliable. Some outputs had artifacts, frame drops, or resolution issues. We needed to build a pipeline that could deliver cinema-grade output despite those limitations.</p>
+        </div>
+      </div>
+
+      <div class="pd-process-block reveal">
+        <div class="pd-proc-meta">
+          <span class="pd-proc-num">02</span>
+          <h3 class="pd-proc-title">What We Built</h3>
+        </div>
+        <div class="pd-proc-body">
+          <p>Before generating a single frame, we sat down and wrote a full screenplay - the same kind we'd write for any narrative film. Once the story was locked, we broke it down into a shooting script with scene breakdowns, shot descriptions, and visual intent. We wanted a clear roadmap before touching the tools.</p>
+          <p>What made this different from traditional filmmaking was the flexibility that came after. On a live-action set, once you wrap, you're locked into what you shot. Here, we could generate new shots mid-edit. If a sequence needed a missing beat, an extra angle, or a tonal correction, we could go back and create it without rescheduling a production day. The script gave us structure. The tools let us keep refining inside it.</p>
+          <p>We built a multi-stage generative pipeline where each tool had a specific, intentional role. We started in ChatGPT, generating initial frames of our protagonist to explore his look and build a rough character sheet. From there, we moved to Midjourney, which became our main engine for scene stills and carried most of the consistency work - particularly clothing, overall look, and facial continuity. For scenes where exact facial accuracy mattered, we passed stills into Ideogram for character face-swapping and upscaling. From there, image-to-video via Kling 2.6 and Veo 3. Voice-over was written in Hebrew, translated to Japanese via ChatGPT, then generated in ElevenLabs. Final picture was cut and color-graded in DaVinci Resolve.</p>
+          <p>Prompting was its own craft inside the pipeline. We used ChatGPT as a starting point for prompt drafts, then refined them against what the models actually produced. Every model had its own quirks - learning how each one responded to different phrasings became part of the work.</p>
+          <div class="pd-pipeline">
+            <span class="pd-pipe-tool">ChatGPT</span>
+            <span class="pd-pipe-sep">→</span>
+            <span class="pd-pipe-tool">Midjourney</span>
+            <span class="pd-pipe-sep">→</span>
+            <span class="pd-pipe-tool">Nano Banana</span>
+            <span class="pd-pipe-sep">→</span>
+            <span class="pd-pipe-tool">Ideogram</span>
+            <span class="pd-pipe-sep">→</span>
+            <span class="pd-pipe-tool">Kling 2.6 / Veo 3</span>
+            <span class="pd-pipe-sep">→</span>
+            <span class="pd-pipe-tool">Topaz</span>
+            <span class="pd-pipe-sep">→</span>
+            <span class="pd-pipe-tool">DaVinci Resolve</span>
+            <span class="pd-pipe-note">ElevenLabs for sound &nbsp;·&nbsp; ChatGPT for Hebrew → Japanese translation</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pd-process-block reveal">
+        <div class="pd-proc-meta">
+          <span class="pd-proc-num">03</span>
+          <h3 class="pd-proc-title">How We Solved It</h3>
+        </div>
+        <div class="pd-proc-body">
+          <p>The hardest technical problem was maintaining visual fidelity across the pipeline. Each tool handoff risked quality loss, and some Kling outputs had minor stuttering or frame gaps. We solved it through Topaz Video AI - specifically frame interpolation to smooth out broken motion, and targeted video upscaling to bring everything up to a cinematic resolution.</p>
+          <p>But the deeper challenge wasn't technical. It was keeping the story human. We approached PerfectMan the way we'd approach any narrative short: visual language first, emotion first, cinematic grammar first. Both of us come from live-action filmmaking, and we brought that same discipline here. Shot design, pacing, color decisions, sound layering.</p>
+          <p>What we learned - and what the final sequence of the film proves - is that the tools don't carry the emotional weight. The cinematic decisions do. AI expanded what was possible. It didn't replace what mattered.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Recognition ─── -->
+    <div class="pd-section">
+      <div class="s-label reveal">Recognition</div>
+
+      <!-- Dor Awards -->
+      <div class="pd-rec-block reveal">
+        <h3 class="pd-rec-title">Dor Awards - 1st Place Winner</h3>
+        <p class="pd-rec-sub">Out of ~400 films submitted.</p>
+        <div class="pd-rec-stacked">
+          <div>
+            <div class="video-embed">
+              <iframe
+                src="https://www.youtube.com/embed/7Pe_szxKVQQ"
+                title="PerfectMan - Dor Awards judges' session"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen loading="lazy"
+              ></iframe>
+            </div>
+            <p class="pd-caption">Clip from the official Dor Awards judges' session. Watch the full session <a href="https://www.youtube.com/watch?v=HRXQL2BL-bQ&t=438s" target="_blank" rel="noopener noreferrer">here →</a></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI LIVE -->
+      <div class="pd-rec-block reveal">
+        <h3 class="pd-rec-title">Best Storytelling of 2025 - AI LIVE</h3>
+        <p class="pd-rec-sub">Selected as the Best Storytelling of 2025 by AI LIVE, a leading AI filmmaking community on LinkedIn (247K followers). <span style="color:var(--text-muted);">Previously known as Creativize.ai.</span></p>
+        <div class="pd-rec-stacked">
+          <div>
+            <div class="video-embed">
+              <iframe
+                src="https://www.youtube.com/embed/1yLF1_CO8_8"
+                title="PerfectMan - AI LIVE Best Storytelling 2025"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen loading="lazy"
+              ></iframe>
+            </div>
+            <a href="https://fs.blabigo.org/s/HHWgWkxT" target="_blank" rel="noopener noreferrer" class="pd-ext-link">View LinkedIn Post →</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <figure class="pd-figure" style="margin:0;">
+              <img src="assets/AI_LIVE_NEW_3.png" alt="AI LIVE - PerfectMan by Ofri Margalit & Omer Eventov" loading="lazy" style="display:block;width:100%;border-bottom:none;">
+            </figure>
+            <figure class="pd-figure" style="margin:0;">
+              <img src="assets/AI_LIVE_NEW_4.png" alt="AI LIVE - PerfectMan feature text" loading="lazy" style="display:block;width:100%;border-top:none;">
+            </figure>
+          </div>
+        </div>
+      </div>
+
+      <!-- Industry Leaders -->
+      <div class="pd-rec-block reveal">
+        <h3 class="pd-rec-title">Recognition from Industry Leaders</h3>
+        <div class="pd-rec-stacked">
+          <div class="pd-rec-quotes">
+            <p>Academy Award winner <strong>Roger Avary</strong> (Pulp Fiction) selected PerfectMan as his personal favorite among the Dor Awards finalists, as featured in the judges' reaction video.</p>
+            <p>Academy Award winner <strong>John Gaeta</strong> (The Matrix) selected PerfectMan for <em>Brave New Stories</em> - an online AI film festival on his platform Escape.ai, dedicated to sci-fi and fantasy storytelling.</p>
+          </div>
+          <figure class="pd-figure">
+            <img src="assets/EscapeAI_2.png" alt="PerfectMan in Brave New Stories collection on Escape.ai" loading="lazy">
+            <figcaption class="pd-figcaption">PerfectMan selected for the Brave New Stories collection on Escape.ai.</figcaption>
+          </figure>
+          <figure class="pd-figure">
+            <img src="assets/EscapeAI_1.png" alt="PerfectMan in the Spotlight section on Escape.ai homepage" loading="lazy">
+            <figcaption class="pd-figcaption">Featured in the Spotlight section on the Escape.ai homepage.</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- Official Selections -->
+      <div class="pd-rec-block reveal">
+        <h3 class="pd-rec-title">Official Selections</h3>
+        <div class="pd-festival-row">
+          <a href="https://www.thedorbrothers.com/top-10" target="_blank" rel="noopener noreferrer" class="pd-festival-item" style="text-decoration:none;">
+            <img src="assets/Dor_Awards.png" alt="Dor Awards - Gold Award" loading="lazy">
+          </a>
+          <a href="https://www.seoulaiff.com/" target="_blank" rel="noopener noreferrer" class="pd-festival-item" style="text-decoration:none;">
+            <img src="assets/SIAFF.png" alt="SIAFF - Official Selection" loading="lazy">
+          </a>
+          <a href="https://chromaawards.com/" target="_blank" rel="noopener noreferrer" class="pd-festival-item" style="text-decoration:none;">
+            <img src="assets/Chroma.png" alt="Chroma - Select & Showcase" loading="lazy">
+          </a>
+          <a href="https://artefact-ai-film-festival.com/" target="_blank" rel="noopener noreferrer" class="pd-festival-item" style="text-decoration:none;">
+            <img src="assets/Artefact.png" alt="Artefact AI Film Festival - Official Selection" loading="lazy">
+          </a>
+        </div>
+        <p class="pd-festival-note">SIAFF: Official Selection - Seoul International Arthouse Film Festival, Korea</p>
+      </div>
+
+    </div><!-- /.pd-section recognition -->
+  </section><!-- /#perfectman -->
+
+  <!-- ═══════════════════════════════════════════════════════
+       PROJECT DETAIL: Al Sam
+       ═══════════════════════════════════════════════════════ -->
+  <section class="pd" id="al-sam">
+
+    <!-- Back nav -->
+    <div class="pd-nav reveal">
+      <a href="#work" class="pd-back-link"><span class="pd-back-arrow">←</span> Selected Work</a>
+      <span class="pd-breadcrumb">AI Projects</span>
+    </div>
+
+    <!-- Hero: Title + Description -->
+    <div class="pd-hero-content reveal">
+      <h2 class="pd-project-title">Al Sam Nonprofit</h2>
+      <div class="pd-hero-meta">
+        <div class="pd-tags reveal" style="transition-delay:.06s">
+          <span class="proj-tag">AI Campaign</span>
+          <span class="proj-tag">Nonprofit</span>
+          <span class="proj-tag">Volunteer</span>
+        </div>
+        <p class="pd-logline reveal" style="transition-delay:.1s">
+          "Israel Is Getting Addicted" - a short AI-driven awareness campaign for Al Sam, an Israeli nonprofit dedicated to drug prevention among youth.
+        </p>
+        <p class="pd-credits reveal" style="transition-delay:.14s">Created for Al Sam Nonprofit &nbsp;·&nbsp; Volunteer work</p>
+      </div>
+    </div>
+
+    <!-- ─── Watch the Campaign ─── -->
+    <div class="pd-section">
+      <div class="s-label reveal">Watch the Campaign</div>
+      <div class="pd-video-primary reveal" style="transition-delay:.06s">
+        <div class="video-embed">
+          <iframe
+            src="https://www.youtube.com/embed/O7is2Q9s8mo"
+            title="Al Sam - Israel Is Getting Addicted | AI Campaign"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── The Process ─── -->
+    <div class="pd-section">
+      <div class="s-label reveal">The Process</div>
+
+      <div class="pd-process-block reveal">
+        <div class="pd-proc-meta">
+          <span class="pd-proc-num">01</span>
+          <h3 class="pd-proc-title">Building the Campaign</h3>
+        </div>
+        <div class="pd-proc-body">
+          <p>The campaign takes direct inspiration from the iconic <em>Israel Is Drying Up</em> public awareness campaign - a visual reference instantly recognizable to Israeli viewers. The name <em>"Israel Is Getting Addicted"</em> deliberately echoes it.</p>
+          <p>The project required a consistent character that could carry the message across the full length of the piece, with minimal resources and fast turnaround.</p>
+          <p>I started by designing the character in Nano Banana Pro, generating around 20 reference images of the same figure from different angles, all on a clean white background. I built these using a structured prompt template on Higgsfield, where each prompt returned the same character from a new angle. Once I had the reference set, I loaded the images into Higgsfield's Soul ID feature to lock in a consistent character identity that I could reuse freely throughout the rest of the pipeline.</p>
+          <p>For video, I used Kling 3.0 for image-to-video generation. For lip-syncing and upscaling, I used HeyGen. The voice-over was recorded by the client. The raw audio quality needed work, so I processed it through AI audio tools and cleaned it further in DaVinci Resolve. Final edit and color grading were done in DaVinci Resolve.</p>
+          <div class="pd-pipeline">
+            <span class="pd-pipe-tool">Nano Banana Pro</span>
+            <span class="pd-pipe-sep">→</span>
+            <span class="pd-pipe-tool">Higgsfield (Soul ID)</span>
+            <span class="pd-pipe-sep">→</span>
+            <span class="pd-pipe-tool">Kling 3.0</span>
+            <span class="pd-pipe-sep">→</span>
+            <span class="pd-pipe-tool">HeyGen</span>
+            <span class="pd-pipe-sep">→</span>
+            <span class="pd-pipe-tool">DaVinci Resolve</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.pd-section process -->
+  </section><!-- /#al-sam -->
+
+  <!-- ═══════════════════════════════════════════════════════
+       CINEMATOGRAPHY
+       ═══════════════════════════════════════════════════════ -->
+  <section class="pd" id="cinematography">
+
+    <div class="pd-nav reveal">
+      <a href="#work" class="pd-back-link"><span class="pd-back-arrow">←</span> Selected Work</a>
+      <span class="pd-breadcrumb">Cinematography</span>
+    </div>
+
+    <div class="pd-hero-content reveal">
+      <h2 class="pd-project-title">Cinematography</h2>
+      <div class="pd-hero-meta">
+        <div class="pd-tags reveal" style="transition-delay:.06s">
+          <span class="proj-tag">DOP</span>
+          <span class="proj-tag">4:3 Film Aesthetic</span>
+          <span class="proj-tag">BMPCC 6K</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pd-section">
+
+      <!-- Fragments from the East -->
+      <div class="cine-subsection reveal">
+        <h3 class="cine-sub-title">Fragments from the East</h3>
+        <p class="cine-sub-note">Two short pieces from the same trip. Different countries, different light — shot as a thematic pair.</p>
+
+        <div class="cine-pair">
+
+          <!-- Video 1: North Vietnam -->
+          <div class="cine-item reveal" style="transition-delay:.06s">
+            <div class="cine-embed">
+              <iframe
+                src="https://www.youtube.com/embed/sJduX3_In9Q"
+                title="North Vietnam - Fragments from the East"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+            <div class="cine-desc">
+              <p>Three children on a quiet mountain road in northern Vietnam. An older sister watching her younger brothers, left in her care while the landscape stretched endlessly behind them.</p>
+              <p class="cine-tech">Shot on BMPCC 6K &nbsp;·&nbsp; 4:3, film aesthetic &nbsp;·&nbsp; Graded in DaVinci Resolve.</p>
+            </div>
+          </div>
+
+          <!-- Video 2: Hokkaido -->
+          <div class="cine-item reveal" style="transition-delay:.12s">
+            <div class="cine-embed">
+              <iframe
+                src="https://www.youtube.com/embed/Xtha6yjuS0M"
+                title="Hokkaido - Fragments from the East"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+            <div class="cine-desc">
+              <p>A single tracking shot from a winter evening in Hokkaido. Voice-over generated in ElevenLabs.</p>
+              <p class="cine-tech">Shot on BMPCC 6K &nbsp;·&nbsp; 4:3, film aesthetic &nbsp;·&nbsp; Graded in DaVinci Resolve.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Music Videos -->
+      <div class="cine-subsection reveal" style="border-top: 1px solid var(--border2); padding-top: 4rem; margin-top: 1rem;">
+        <h3 class="cine-sub-title">Music Videos</h3>
+        <p class="cine-sub-note">Narrative and visual work for music — directed, shot, and graded on location.</p>
+
+        <div class="cine-stack">
+
+          <!-- Video 1: Bo Elay - Heichal -->
+          <div class="cine-item reveal" style="transition-delay:.06s">
+            <div class="cine-embed-169">
+              <iframe
+                src="https://www.youtube.com/embed/TtMlva36uHM"
+                title="Bo Elay - Heichal"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+            <div class="cine-desc">
+              <p>Bo Elay &mdash; &ldquo;Heichal&rdquo;</p>
+              <p class="cine-tech">Directed, shot, edited, and color-graded by Ofri Margalit.</p>
+            </div>
+          </div>
+
+          <!-- Video 2: Interia - Make Believe Heaven -->
+          <div class="cine-item reveal" style="transition-delay:.12s">
+            <div class="cine-embed-169">
+              <iframe
+                src="https://www.youtube.com/embed/Q0Xj6gOBOHE"
+                title="Interia - Make Believe Heaven"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+            <div class="cine-desc">
+              <p>Interia &mdash; &ldquo;Make Believe Heaven&rdquo;</p>
+              <p class="cine-tech">Directed by Omer Eventov. Cinematography and color grading by Ofri Margalit.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Frames from Other Projects -->
+      <div class="cine-subsection reveal" style="border-top: 1px solid var(--border2); padding-top: 4rem; margin-top: 1rem;">
+        <h3 class="cine-sub-title">Frames from Other Projects</h3>
+
+        <div class="frames-wrap">
+          <button class="frames-arrow frames-arrow-prev frames-hidden" id="framesPrev" aria-label="Previous">&#8592;</button>
+          <div class="frames-track" id="framesTrack">
+            <img src="assets/photo1.png"  alt="" loading="lazy">
+            <img src="assets/photo2.png"  alt="" loading="lazy">
+            <img src="assets/photo3.png"  alt="" loading="lazy">
+            <img src="assets/photo4.png"  alt="" loading="lazy">
+            <img src="assets/photo5.png"  alt="" loading="lazy">
+            <img src="assets/photo6.png"  alt="" loading="lazy">
+            <img src="assets/photo7.png"  alt="" loading="lazy">
+            <img src="assets/photo8.png"  alt="" loading="lazy">
+            <img src="assets/photo9.png"  alt="" loading="lazy">
+            <img src="assets/photo10.png" alt="" loading="lazy">
+            <img src="assets/photo11.png" alt="" loading="lazy">
+            <img src="assets/photo12.png" alt="" loading="lazy">
+          </div>
+          <button class="frames-arrow frames-arrow-next" id="framesNext" aria-label="Next">&#8594;</button>
+        </div>
+      </div>
+
+    </div><!-- /.pd-section -->
+  </section><!-- /#cinematography -->
+
+  <!-- Photography -->
+  <section id="photography" class="pd photo-sec">
+
+    <div class="pd-nav reveal">
+      <a href="#work" class="pd-back-link"><span class="pd-back-arrow">←</span> Selected Work</a>
+      <span class="pd-breadcrumb">Photography</span>
+    </div>
+
+    <div class="pd-hero-content reveal">
+      <h2 class="pd-project-title">Photography</h2>
+      <div class="pd-hero-meta">
+        <div class="pd-tags reveal" style="transition-delay:.06s">
+          <span class="proj-tag">35mm Film</span>
+          <span class="proj-tag">Analog</span>
+          <span class="proj-tag">Travel</span>
+        </div>
+        <p style="font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-top:1.25rem;font-family:'DM Mono',monospace;">Tap to enlarge</p>
+      </div>
+    </div>
+
+    <div class="pd-section">
+      <div class="photo-grid">
+        <div class="photo-grid-item reveal" style="transition-delay:.04s"><img src="assets/train-fuji.jpg"       alt="" loading="lazy"></div>
+        <div class="photo-grid-item reveal" style="transition-delay:.08s"><img src="assets/cube-houses.jpg"     alt="" loading="lazy"></div>
+        <div class="photo-grid-item reveal" style="transition-delay:.12s"><img src="assets/deer-valley.jpeg"    alt="" loading="lazy"></div>
+        <div class="photo-grid-item reveal" style="transition-delay:.16s"><img src="assets/suitcase-korea.jpg"  alt="" loading="lazy"></div>
+        <div class="photo-grid-item reveal" style="transition-delay:.20s"><img src="assets/berlin-memorial.jpg" alt="" loading="lazy"></div>
+        <div class="photo-grid-item reveal" style="transition-delay:.24s"><img src="assets/sakurajima.jpg"      alt="" loading="lazy"></div>
+        <div class="photo-grid-item reveal" style="transition-delay:.28s"><img src="assets/perfect-blue.jpg"    alt="" loading="lazy"></div>
+        <div class="photo-grid-item reveal" style="transition-delay:.32s"><img src="assets/selfie-camera.jpg"   alt="" loading="lazy"></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- About -->
+  <section id="about" class="about-sec">
+    <div class="s-label">About</div>
+    <div class="about-grid">
+      <blockquote class="about-quote reveal">
+        Visual <em>craft</em> built through film sets, sharpened by <em>code</em>.
+      </blockquote>
+      <div class="about-body reveal" style="transition-delay:.08s">
+        <p class="about-p">
+          Ofri Margalit is a narrative filmmaker and AI creative based in Tel Aviv, currently pursuing a B.Sc. in Computer Science.
+        </p>
+        <p class="about-p">
+          His work sits at the intersection of two disciplines that rarely meet: years of experience in professional film productions, including Netflix series, feature films, and prime-time TV, alongside hands-on generative AI filmmaking.
+        </p>
+        <p class="about-p">
+          His AI short film <em style="font-style:italic;">PerfectMan</em> won 1st place at the Dor Awards and was recognized by Academy Award winners Roger Avary and John Gaeta.
+        </p>
+      </div>
+      <div class="about-photo-wrap reveal" style="transition-delay:.15s">
+        <img src="assets/profile.jpg" alt="Ofri Margalit" class="about-photo" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- Thinking About Next -->
+  <section id="thinking" style="padding: 8rem 3.5rem; border-top: 1px solid var(--border2);">
+    <div class="s-label reveal">What I'm Thinking About Next</div>
+    <div style="max-width: 780px; margin-top: 3rem;">
+      <p class="reveal" style="font-size: .92rem; line-height: 2.05; color: var(--text-dim); margin-bottom: 1.5rem; transition-delay: .06s;">After years on professional film sets, I've watched directors, DPs, and producers spend months in pre-production trying to answer one question: what will this actually look like? Storyboards help, but they're static. Mood boards help, but they're not the film.</p>
+      <p class="reveal" style="font-size: .92rem; line-height: 2.05; color: var(--text-dim); margin-bottom: 1.5rem; transition-delay: .12s;">It's a gap I keep coming back to. An idea I've been shaping: a pre-production platform where filmmakers could upload their script, define their visual language through prompts and style presets, and receive cinematic image sequences that function as realistic storyboards. Selected sequences could then be animated into short motion previews, letting teams build a proof of concept for their vision before a single day of shooting.</p>
+      <p class="reveal" style="font-size: .92rem; line-height: 2.05; color: var(--text-dim); margin-bottom: 1.5rem; transition-delay: .18s;">Generative AI has made pre-visualization faster than it's ever been. The opportunity is to make it work for the people who actually need it, filmmakers, with an interface that speaks their language.</p>
+      <p class="reveal" style="font-size: .92rem; line-height: 2.05; color: var(--text-muted); transition-delay: .24s; font-style: italic;">For now it's an observation and a direction, shaped by the problem I keep seeing from both sides of the camera.</p>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="contact-sec">
+    <span class="contact-eyebrow reveal">Let's Collaborate</span>
+    <h2 class="contact-heading contact-h2 reveal">
+      Ready to create<br><em>something</em><br>extraordinary?
+    </h2>
+    <a href="mailto:ofrimargalit@gmail.com" class="contact-email reveal">ofrimargalit@gmail.com</a>
+    <div class="socials reveal" style="transition-delay:.1s">
+      <a href="https://instagram.com/ofri.margalit" target="_blank" rel="noopener noreferrer" class="social-a" aria-label="Instagram">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="https://www.linkedin.com/in/ofrimargalit/" target="_blank" rel="noopener noreferrer" class="social-a" aria-label="LinkedIn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      </a>
+      <a href="https://www.youtube.com/@ofrimargalit4066" target="_blank" rel="noopener noreferrer" class="social-a" aria-label="YouTube">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.6.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.54C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#090807"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 Ofri Margalit - All Rights Reserved</p>
+    <div class="footer-claude">
+      <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">
+        <img src="assets/Claude-AI-logo.webp" alt="Claude AI" style="width:16px;height:16px;object-fit:contain;display:block;">
+        Created using Claude Code
+      </a>
+    </div>
+    <p>Filmmaker &amp; AI Creative</p>
+  </footer>
+
+  <!-- Lightbox -->
+  <div class="lb-overlay" id="lbOverlay" role="dialog" aria-modal="true">
+    <button class="lb-close" id="lbClose" aria-label="Close">&#x2715;</button>
+    <button class="lb-nav lb-nav-prev" id="lbPrev" aria-label="Previous">&#8592;</button>
+    <img id="lbImg" src="" alt="">
+    <button class="lb-nav lb-nav-next" id="lbNext" aria-label="Next">&#8594;</button>
+    <div class="lb-counter" id="lbCounter"></div>
+  </div>
+
+  <script>
+    // Letterbox open
+    window.addEventListener('load', () => setTimeout(() => {
+      document.getElementById('lbTop').classList.add('open');
+      document.getElementById('lbBtm').classList.add('open');
+    }, 150));
+
+    // Custom cursor
+    const cur = document.getElementById('cur');
+    const ring = document.getElementById('curRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cur.style.cssText += `left:${mx}px;top:${my}px`; });
+    (function tick() { rx += (mx-rx)*.1; ry += (my-ry)*.1; ring.style.cssText += `left:${rx}px;top:${ry}px`; requestAnimationFrame(tick); })();
+    document.querySelectorAll('a,button,.proj-card,.pd-figure').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('hov'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('hov'));
+    });
+
+    // Scroll reveals
+    const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis'); }), { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+
+    // Smooth nav background on scroll
+    const nav = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+      nav.style.background = window.scrollY > 60
+        ? 'rgba(9,8,7,0.95)'
+        : 'linear-gradient(180deg,rgba(9,8,7,0.7) 0%,transparent 100%)';
+    });
+
+    // Frames carousel
+    (function() {
+      const track = document.getElementById('framesTrack');
+      const prev  = document.getElementById('framesPrev');
+      const next  = document.getElementById('framesNext');
+      if (!track) return;
+      const GAP = 6;
+      const COLS = () => window.innerWidth < 640 ? 1 : window.innerWidth < 960 ? 2 : 3;
+
+      function setSizes() {
+        const cols = COLS();
+        const w = Math.floor((track.clientWidth - (cols - 1) * GAP) / cols);
+        track.querySelectorAll('img').forEach(img => {
+          img.style.minWidth = w + 'px';
+          img.style.maxWidth = w + 'px';
+        });
+        updateArrows();
+      }
+      function pageWidth() { return track.clientWidth + GAP; }
+      function updateArrows() {
+        prev.classList.toggle('frames-hidden', track.scrollLeft <= 2);
+        next.classList.toggle('frames-hidden', track.scrollLeft + track.clientWidth >= track.scrollWidth - 2);
+      }
+
+      prev.addEventListener('click', () => { track.scrollBy({ left: -pageWidth(), behavior: 'smooth' }); });
+      next.addEventListener('click', () => { track.scrollBy({ left:  pageWidth(), behavior: 'smooth' }); });
+      track.addEventListener('scroll', updateArrows, { passive: true });
+
+      // Touch swipe
+      let touchX = 0;
+      track.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+      track.addEventListener('touchend', e => {
+        const dx = touchX - e.changedTouches[0].clientX;
+        if (Math.abs(dx) > 40) track.scrollBy({ left: dx > 0 ? pageWidth() : -pageWidth(), behavior: 'smooth' });
+      }, { passive: true });
+
+      new ResizeObserver(setSizes).observe(track);
+      setSizes();
+
+      // Wire carousel images into shared lightbox
+      Array.from(track.querySelectorAll('img')).forEach((img, i, arr) => {
+        img.addEventListener('click', () => LB.open(arr.map(x => x.src), i));
+      });
+    })();
+
+    // Shared lightbox
+    const LB = (() => {
+      const overlay = document.getElementById('lbOverlay');
+      const lbImg   = document.getElementById('lbImg');
+      const lbClose = document.getElementById('lbClose');
+      const lbPrev  = document.getElementById('lbPrev');
+      const lbNext  = document.getElementById('lbNext');
+      const lbCtr   = document.getElementById('lbCounter');
+      let srcs = [], cur = 0;
+
+      function go(idx) {
+        cur = (idx + srcs.length) % srcs.length;
+        lbImg.src = srcs[cur];
+        lbCtr.textContent = (cur + 1) + ' / ' + srcs.length;
+      }
+      function open(sources, idx) {
+        srcs = sources; go(idx);
+        overlay.classList.add('lb-open');
+        document.body.style.overflow = 'hidden';
+      }
+      function close() {
+        overlay.classList.remove('lb-open');
+        document.body.style.overflow = '';
+      }
+
+      lbClose.addEventListener('click', close);
+      overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+      lbPrev.addEventListener('click', e => { e.stopPropagation(); go(cur - 1); });
+      lbNext.addEventListener('click', e => { e.stopPropagation(); go(cur + 1); });
+      document.addEventListener('keydown', e => {
+        if (!overlay.classList.contains('lb-open')) return;
+        if (e.key === 'Escape') close();
+        if (e.key === 'ArrowLeft')  go(cur - 1);
+        if (e.key === 'ArrowRight') go(cur + 1);
+      });
+      // Touch swipe inside lightbox
+      let lbTouchX = 0;
+      overlay.addEventListener('touchstart', e => { lbTouchX = e.touches[0].clientX; }, { passive: true });
+      overlay.addEventListener('touchend', e => {
+        const dx = lbTouchX - e.changedTouches[0].clientX;
+        if (Math.abs(dx) > 40) go(dx > 0 ? cur + 1 : cur - 1);
+      }, { passive: true });
+
+      return { open };
+    })();
+
+    // Photography grid lightbox
+    (function() {
+      const items = document.querySelectorAll('.photo-grid-item');
+      const srcs  = Array.from(items).map(el => el.querySelector('img').src);
+      items.forEach((item, i) => item.addEventListener('click', () => LB.open(srcs, i)));
+    })();
+  </script>
+</body>
+</html>

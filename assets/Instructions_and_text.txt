@@ -1,0 +1,73 @@
+﻿PerfectMan — Project Page Structure
+________________
+
+
+SECTION 1: Hero
+Poster: PerfectMan_Poster.png (Note: poster credits "Creativize.ai" which was later rebranded as AI LIVE)
+Logline: PerfectMan has all the powers, but fears a simple door he can't defeat. His real challenge isn't a villain, but what lies behind his mask and the truth on the other side of that door.
+Credits: A film by Ofri Margalit & Omer Eventov
+SECTION 2: Watch the Film
+Embedded video: https://www.youtube.com/watch?v=M3i05lGMSm8
+
+
+SECTION 3: The Process
+________________
+
+
+The Problem
+We wanted to tell a story about a hikikomori, a Japanese term for people who withdraw completely from society, isolating themselves inside their homes for months or even years. We first encountered the phenomenon through Shaking Tokyo, a short film by Bong Joon-ho that stayed with us for years.
+The creative challenge was clear: how do you build a Japanese-set narrative that feels culturally grounded, cinematically cohesive, and emotionally real?
+The technical challenge was bigger. Generative video models were still maturing fast, and the landscape was shifting week by week. Character consistency across shots was unreliable. Some outputs had artifacts, frame drops, or resolution issues. We needed to build a pipeline that could deliver cinema-grade output despite those limitations.
+________________
+
+
+What We Built
+Before generating a single frame, we sat down and wrote a full screenplay, the same kind we'd write for any narrative film. Once the story was locked, we broke it down into a shooting script with scene breakdowns, shot descriptions, and visual intent. We wanted a clear roadmap before touching the tools.
+What made this different from traditional filmmaking was the flexibility that came after. On a live-action set, once you wrap, you're locked into what you shot. Here, we could generate new shots mid-edit. If a sequence needed a missing beat, an extra angle, or a tonal correction, we could go back and create it without rescheduling a production day. The script gave us structure. The tools let us keep refining inside it.
+We built a multi-stage generative pipeline where each tool had a specific, intentional role.
+We started in ChatGPT, generating initial frames of our protagonist to explore his look and build a rough character sheet from multiple angles. From there, we moved to Midjourney, which became our main engine for generating the scene stills across the film. Midjourney also carried most of the consistency work, particularly for clothing and overall look, and handled the facial continuity well in most cases. Nano Banana was still very early at the time, so we used it selectively rather than fully.
+For scenes where exact facial accuracy mattered, we passed the stills into Ideogram for character face-swapping, then upscaled them in Ideogram. For the rest of the scenes, upscaling happened directly inside Midjourney. Maximizing the resolution of the stills before moving to video was important to us, not just upscaling the final video output, because image quality compounds through the pipeline.
+From there, we moved into image-to-video using Kling (version 2.6, the most advanced at the time) and Veo 3. Voice-over was written in Hebrew, translated to Japanese via ChatGPT, then generated in ElevenLabs until we found a narrator voice that carried the right emotional tone for the film. The final picture was cut and color-graded in DaVinci Resolve.
+Prompting was its own craft inside the pipeline. We used ChatGPT as a starting point to generate prompt drafts, then refined them against what the models actually produced. When outputs didn't match the intent, we'd restructure the prompt entirely, shift its length, change the order of descriptors, or rewrite it by hand. Every model had its own quirks, and learning how each one responded to different phrasings became part of the work.
+The pipeline: ChatGPT → Midjourney → Nano Banana → Ideogram → Kling 2.6 / Veo 3 → Topaz → DaVinci Resolve. ElevenLabs for sound.
+________________
+
+
+How We Solved It
+The hardest technical problem was maintaining visual fidelity across the pipeline. Each tool handoff risked quality loss, and some Kling outputs had minor stuttering or frame gaps. We solved it through Topaz Video AI, specifically using frame interpolation to smooth out broken motion, and targeted video upscaling to bring everything up to a cinematic resolution.
+But the deeper challenge wasn't technical. It was keeping the story human. We approached PerfectMan the way we'd approach any narrative short: visual language first, emotion first, cinematic grammar first. Both of us come from live-action filmmaking, and we brought that same discipline here. Shot design, pacing, color decisions, sound layering.
+What we learned, and what the final sequence of the film proves, is that the tools don't carry the emotional weight. The cinematic decisions do. AI expanded what was possible. It didn't replace what mattered.
+
+
+SECTION 4: Recognition
+Dor Awards — 1st Place Winner
+Out of ~400 films submitted.
+Embedded video: https://youtu.be/7Pe_szxKVQQ
+Caption under video: Clip from the official Dor Awards judges' session. Watch the full session [here →] https://www.youtube.com/watch?v=HRXQL2BL-bQ&t=438s
+
+Photos: Ofri_&_Omer_with_the_Trophy.jpg and near it: Trophy.jpg
+Small caption: Ofri Margalit & Omer Eventov with the Dor Awards trophy.
+
+
+Best Storytelling of 2025 — AI LIVE
+Selected as the Best Storytelling of 2025 by AI LIVE, a leading AI filmmaking community on LinkedIn (247K followers).
+Embedded video: https://youtu.be/1yLF1_CO8_8
+Photos: AI_LIVE_BLOG_1.jpg, AI_LIVE_BLOG_2.jpg
+LinkedIn post: https://fs.blabigo.org/s/HHWgWkxT (link placed under podcast clip or screenshot of the post)
+
+
+________________
+
+
+Recognition from Industry Leaders
+Academy Award winner Roger Avary (Pulp Fiction) selected PerfectMan as his personal favorite among the Dor Awards finalists, as featured in the judges' reaction video.
+Academy Award winner John Gaeta (The Matrix) selected PerfectMan for Brave New Stories, an online AI film festival on his platform Escape.ai, dedicated to sci-fi and fantasy storytelling.
+Visual assets:
+* Screenshot of PerfectMan in the Brave New Stories collection on Escape.ai - EscapeAI_2
+* Screenshot of PerfectMan featured in the Spotlight section on Escape.ai homepage - EscapeAI_1
+
+
+________________
+
+
+Official Selection — SIAFF International Film Festival (Korea)
